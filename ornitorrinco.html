@@ -1,0 +1,983 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ornitorrinco — O Animal Mais Estranho do Planeta</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0f0d;
+  --surface: #111a14;
+  --card: #162019;
+  --accent: #4eff91;
+  --accent2: #ffe84d;
+  --accent3: #ff6b6b;
+  --text: #f0faf3;
+  --muted: #a8c9b0;
+  --border: #243d2c;
+}
+ 
+* { margin: 0; padding: 0; box-sizing: border-box; }
+ 
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Space Mono', monospace;
+  overflow-x: hidden;
+  cursor: none;
+}
+ 
+/* CURSOR */
+.cursor {
+  width: 12px; height: 12px;
+  background: var(--accent);
+  border-radius: 50%;
+  position: fixed;
+  top: 0; left: 0;
+  pointer-events: none;
+  z-index: 9999;
+  mix-blend-mode: exclusion;
+}
+ 
+/* NOISE TEXTURE — z-index negativo para não bloquear cliques */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: -1;
+  opacity: 0.5;
+}
+ 
+/* HERO */
+.hero {
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 2rem 1.5rem 3rem;
+  position: relative;
+  overflow: hidden;
+}
+ 
+.hero-deco {
+  position: absolute;
+  right: -2rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 220px;
+  height: 220px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(78,255,145,0.08) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+  animation: heroDeco 4s ease-in-out infinite;
+}
+ 
+/* HERO IMAGE */
+.hero-img-wrap {
+  position: relative;
+  width: 180px;
+  height: 180px;
+  margin-bottom: 1.75rem;
+  z-index: 1;
+}
+ 
+.hero-img {
+  width: 180px;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 2px solid var(--accent);
+  display: block;
+  filter: saturate(0.75) brightness(0.95);
+  position: relative;
+  z-index: 1;
+}
+ 
+.hero-img-glow {
+  position: absolute;
+  inset: -8px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(78,255,145,0.2) 0%, transparent 70%);
+  animation: glowPulse 4s ease-in-out infinite;
+  z-index: 0;
+}
+ 
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--accent);
+  color: #000;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  padding: 0.35rem 0.75rem;
+  border-radius: 2px;
+  width: fit-content;
+  margin-bottom: 1.5rem;
+  z-index: 1;
+  animation: slideDown 0.6s ease both;
+}
+ 
+.hero-badge span { font-size: 0.9rem; }
+ 
+.hero h1 {
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(3rem, 13vw, 5rem);
+  font-weight: 800;
+  line-height: 0.92;
+  letter-spacing: -0.03em;
+  z-index: 1;
+  animation: slideUp 0.7s ease 0.1s both;
+}
+ 
+.hero h1 em {
+  font-style: normal;
+  color: var(--accent);
+  display: inline;
+}
+ 
+.hero h1 .outline {
+  -webkit-text-stroke: 1.5px var(--accent);
+  color: transparent;
+}
+ 
+.hero-sub {
+  font-size: 0.8rem;
+  color: var(--muted);
+  line-height: 1.7;
+  margin-top: 1.5rem;
+  max-width: 340px;
+  z-index: 1;
+  animation: slideUp 0.7s ease 0.25s both;
+}
+ 
+.hero-cta {
+  margin-top: 2rem;
+  display: flex;
+  gap: 0.75rem;
+  z-index: 1;
+  animation: slideUp 0.7s ease 0.35s both;
+}
+ 
+.btn-primary {
+  background: var(--accent);
+  color: #000;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  padding: 0.8rem 1.4rem;
+  border: none;
+  border-radius: 2px;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+ 
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(78,255,145,0.3);
+}
+ 
+.btn-ghost {
+  background: transparent;
+  color: var(--text);
+  font-family: 'Space Mono', monospace;
+  font-size: 0.75rem;
+  padding: 0.8rem 1.4rem;
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+  transition: border-color 0.15s, color 0.15s;
+}
+ 
+.btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+ 
+.scroll-hint {
+  position: absolute;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.6rem;
+  letter-spacing: 0.2em;
+  color: var(--muted);
+  text-transform: uppercase;
+  z-index: 1;
+  animation: bounce 2s ease-in-out infinite;
+}
+ 
+.scroll-hint::after {
+  content: '';
+  width: 1px;
+  height: 40px;
+  background: linear-gradient(to bottom, var(--muted), transparent);
+}
+ 
+/* MARQUEE */
+.marquee-wrap {
+  background: var(--accent);
+  padding: 0.6rem 0;
+  overflow: hidden;
+  white-space: nowrap;
+}
+ 
+.marquee-inner {
+  display: inline-flex;
+  gap: 3rem;
+  animation: marquee 20s linear infinite;
+}
+ 
+.marquee-inner span {
+  font-family: 'Syne', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #000;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+ 
+/* STATS BAR */
+.stats-bar {
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+ 
+.stats-bar::-webkit-scrollbar { display: none; }
+ 
+.stat-item {
+  flex: 0 0 auto;
+  padding: 1rem 1.5rem;
+  border-right: 1px solid var(--border);
+  min-width: 140px;
+}
+ 
+.stat-num {
+  font-family: 'Syne', sans-serif;
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--accent);
+  line-height: 1;
+}
+ 
+.stat-label {
+  font-size: 0.6rem;
+  color: var(--muted);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-top: 0.25rem;
+}
+ 
+/* SECTION LABEL */
+.section-label {
+  font-size: 0.6rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+ 
+.section-label::before {
+  content: '';
+  width: 20px;
+  height: 1px;
+  background: var(--accent);
+}
+ 
+/* SECTIONS */
+.section {
+  padding: 3rem 1.5rem;
+}
+ 
+.section-title {
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(1.8rem, 7vw, 2.5rem);
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  margin-bottom: 2rem;
+}
+ 
+/* CARDS */
+.cards {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+ 
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 1.5rem;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.2s, border-color 0.2s;
+  opacity: 0;
+  transform: translateY(20px);
+}
+ 
+.card.visible {
+  animation: cardReveal 0.5s ease forwards;
+}
+ 
+.card:hover {
+  transform: translateY(-3px);
+  border-color: var(--accent);
+}
+ 
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 3px;
+  height: 0;
+  background: var(--accent);
+  transition: height 0.3s ease;
+}
+ 
+.card:hover::before { height: 100%; }
+ 
+.card-num {
+  font-family: 'Syne', sans-serif;
+  font-size: 3rem;
+  font-weight: 800;
+  color: var(--border);
+  line-height: 1;
+  margin-bottom: 0.5rem;
+  transition: color 0.2s;
+}
+ 
+.card:hover .card-num { color: rgba(78,255,145,0.15); }
+ 
+.card-icon { font-size: 1.8rem; margin-bottom: 0.75rem; }
+ 
+.card-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 1.2rem;
+  font-weight: 800;
+  margin-bottom: 0.5rem;
+  color: var(--text);
+}
+ 
+.card-text {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--muted);
+  line-height: 1.8;
+}
+ 
+.card-tag {
+  display: inline-block;
+  margin-top: 1rem;
+  font-size: 0.6rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 0.25rem 0.6rem;
+  border-radius: 2px;
+  font-weight: 700;
+}
+ 
+.tag-bio   { background: rgba(78,255,145,0.1);  color: var(--accent); }
+.tag-weird { background: rgba(255,232,77,0.1);   color: var(--accent2); }
+.tag-fact  { background: rgba(255,107,107,0.1);  color: var(--accent3); }
+ 
+/* FEATURE CARD */
+.feature-card {
+  background: var(--accent);
+  color: #000;
+  border-radius: 4px;
+  padding: 2rem 1.5rem;
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 1rem;
+}
+ 
+.feature-card::after {
+  content: '🦆';
+  position: absolute;
+  right: 1rem;
+  bottom: -0.5rem;
+  font-size: 5rem;
+  opacity: 0.15;
+  transform: scaleX(-1);
+}
+ 
+.feature-card .card-title { color: #000; font-size: 1.4rem; }
+.feature-card .card-text  { color: rgba(0,0,0,0.7); }
+ 
+/* TIMELINE */
+.timeline {
+  position: relative;
+  padding-left: 2rem;
+}
+ 
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 0.4rem;
+  top: 0; bottom: 0;
+  width: 1px;
+  background: var(--border);
+}
+ 
+.timeline-item {
+  position: relative;
+  padding-bottom: 2rem;
+  opacity: 0;
+  transform: translateX(-10px);
+}
+ 
+.timeline-item.visible {
+  animation: slideRight 0.5s ease forwards;
+}
+ 
+.timeline-item::before {
+  content: '';
+  position: absolute;
+  left: -1.6rem;
+  top: 0.3rem;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 3px var(--bg);
+}
+ 
+.timeline-year {
+  font-size: 0.6rem;
+  letter-spacing: 0.15em;
+  color: var(--accent);
+  text-transform: uppercase;
+  margin-bottom: 0.25rem;
+}
+ 
+.timeline-title {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  margin-bottom: 0.4rem;
+}
+ 
+.timeline-text {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--muted);
+  line-height: 1.7;
+}
+ 
+/* QUIZ */
+.quiz-section {
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  padding: 3rem 1.5rem;
+}
+ 
+.quiz-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 1.5rem;
+}
+ 
+.quiz-question {
+  font-family: 'Syne', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 1.25rem;
+  line-height: 1.3;
+}
+ 
+.quiz-options {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+ 
+.quiz-option {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-family: 'Space Mono', monospace;
+  font-size: 0.72rem;
+  padding: 0.8rem 1rem;
+  border-radius: 2px;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.15s;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+ 
+.quiz-option:hover   { border-color: var(--accent);  color: var(--accent); }
+.quiz-option.correct { background: rgba(78,255,145,0.1); border-color: var(--accent);  color: var(--accent); }
+.quiz-option.wrong   { background: rgba(255,107,107,0.1); border-color: var(--accent3); color: var(--accent3); }
+ 
+.quiz-letter {
+  width: 20px; height: 20px;
+  border: 1px solid currentColor;
+  border-radius: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.6rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+ 
+.quiz-feedback {
+  margin-top: 1rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  line-height: 1.7;
+  display: none;
+  padding: 0.75rem;
+  border-radius: 2px;
+  background: rgba(78,255,145,0.05);
+  border: 1px solid rgba(78,255,145,0.2);
+  color: var(--muted);
+}
+ 
+.quiz-feedback.show { display: block; }
+ 
+.quiz-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 1.25rem;
+}
+ 
+.quiz-progress {
+  font-size: 0.6rem;
+  color: var(--muted);
+  letter-spacing: 0.1em;
+}
+ 
+.quiz-next {
+  background: var(--accent);
+  color: #000;
+  border: none;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.6rem 1rem;
+  border-radius: 2px;
+  cursor: pointer;
+  display: none;
+}
+ 
+.quiz-next.show { display: block; }
+ 
+/* FOOTER */
+footer {
+  padding: 2rem 1.5rem;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+ 
+footer .logo {
+  font-family: 'Syne', sans-serif;
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--accent);
+}
+ 
+footer p {
+  font-size: 0.65rem;
+  color: var(--muted);
+  line-height: 1.6;
+}
+ 
+/* DIVIDER */
+.divider {
+  height: 1px;
+  background: var(--border);
+  margin: 0 1.5rem;
+}
+ 
+/* ANIMATIONS */
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes slideRight {
+  from { opacity: 0; transform: translateX(-10px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes cardReveal {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes heroDeco {
+  0%, 100% { opacity: 0.5; transform: translateY(-50%) scale(1); }
+  50%       { opacity: 1;   transform: translateY(-50%) scale(1.1); }
+}
+@keyframes glowPulse {
+  0%, 100% { opacity: 0.6; transform: scale(1); }
+  50%       { opacity: 1;   transform: scale(1.08); }
+}
+@keyframes bounce {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50%       { transform: translateX(-50%) translateY(-6px); }
+}
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+</style>
+</head>
+<body>
+ 
+<div class="cursor" id="cursor"></div>
+ 
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-deco"></div>
+ 
+  <div class="hero-img-wrap">
+    <img
+      src="https://www.fundacionaquae.org/wp-content/uploads/2020/01/ornitorrinco-en-peligro-de-extinción-por-el-cambio-climático.jpg"
+      alt="Ornitorrinco"
+      class="hero-img"
+    />
+    <div class="hero-img-glow"></div>
+  </div>
+ 
+  <div class="hero-badge"><span>🦆</span> Curiosidades científicas</div>
+  <h1><span class="outline">Ornito</span><em>rrinco</em></h1>
+  <p class="hero-sub">O animal mais estranho que a evolução já criou. Descobre por que esse bichinho deixa os cientistas loucos até hoje.</p>
+  <div class="hero-cta">
+    <a href="#curiosidades" class="btn-primary">Explorar →</a>
+    <a href="#quiz" class="btn-ghost">Fazer quiz</a>
+  </div>
+  <div class="scroll-hint">scroll</div>
+</section>
+ 
+<!-- MARQUEE -->
+<div class="marquee-wrap">
+  <div class="marquee-inner">
+    <span>⚡ Produz veneno</span>
+    <span>🥚 Põe ovos</span>
+    <span>🔋 Sente eletricidade</span>
+    <span>🦆 Bico de pato</span>
+    <span>🦦 Rabo de castor</span>
+    <span>🦦 Patas de lontra</span>
+    <span>⚡ Produz veneno</span>
+    <span>🥚 Põe ovos</span>
+    <span>🔋 Sente eletricidade</span>
+    <span>🦆 Bico de pato</span>
+    <span>🦦 Rabo de castor</span>
+    <span>🦦 Patas de lontra</span>
+  </div>
+</div>
+ 
+<!-- STATS -->
+<div class="stats-bar">
+  <div class="stat-item">
+    <div class="stat-num">~30cm</div>
+    <div class="stat-label">Comprimento médio</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num">2kg</div>
+    <div class="stat-label">Peso máximo</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num">80M</div>
+    <div class="stat-label">Anos de evolução</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num">40.000</div>
+    <div class="stat-label">Receptores elétricos no bico</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num">VU</div>
+    <div class="stat-label">Status de conservação</div>
+  </div>
+</div>
+ 
+<!-- CURIOSIDADES -->
+<section class="section" id="curiosidades">
+  <div class="section-label">Fatos absurdos</div>
+  <h2 class="section-title">Por que ele é tão <em style="color:var(--accent)">maluco?</em></h2>
+ 
+  <div class="cards">
+ 
+    <div class="feature-card">
+      <div class="card-icon">🥚</div>
+      <p class="card-title">Mamífero que bota ovos</p>
+      <p class="card-text">Isso mesmo — ele é mamífero, mas bota ovos como um réptil. Quando os primeiros espécimes chegaram à Europa em 1799, os cientistas acharam que era uma fraude. Alguém tinha costurado partes de animais diferentes!</p>
+    </div>
+ 
+    <div class="card" data-delay="0">
+      <div class="card-num">01</div>
+      <div class="card-icon">⚡</div>
+      <p class="card-title">Tem superpoder de eletricidade</p>
+      <p class="card-text">O bico do ornitorrinco tem cerca de 40.000 receptores elétricos. Ele consegue detectar os campos elétricos gerados pelos músculos dos peixes na água — mesmo com os olhos e ouvidos fechados. É como um sexto sentido real.</p>
+      <span class="card-tag tag-bio">Biologia</span>
+    </div>
+ 
+    <div class="card" data-delay="1">
+      <div class="card-num">02</div>
+      <div class="card-icon">☠️</div>
+      <p class="card-title">Os machos têm veneno</p>
+      <p class="card-text">Os machos têm esporas venenosas nos calcanhares das pernas traseiras. O veneno não mata humanos, mas causa uma dor incapacitante que pode durar meses — e morfina não resolve. Os cientistas ainda estudam o mecanismo.</p>
+      <span class="card-tag tag-weird">Bizarro</span>
+    </div>
+ 
+    <div class="card" data-delay="2">
+      <div class="card-num">03</div>
+      <div class="card-icon">🍼</div>
+      <p class="card-title">Amamenta sem mamilos</p>
+      <p class="card-text">A fêmea não tem mamilos. O leite simplesmente sai pela pele do abdômen, como suor. Os filhotes lambem o leite diretamente da pele da mãe. Isso é considerado uma característica primitiva dos mamíferos.</p>
+      <span class="card-tag tag-bio">Biologia</span>
+    </div>
+ 
+    <div class="card" data-delay="3">
+      <div class="card-num">04</div>
+      <div class="card-icon">🧬</div>
+      <p class="card-title">Tem 10 cromossomos sexuais</p>
+      <p class="card-text">Humanos têm 2 cromossomos sexuais (X e Y). O ornitorrinco tem 10 — cinco X e cinco Y nos machos. É um dos sistemas de determinação de sexo mais complexos encontrados em qualquer mamífero.</p>
+      <span class="card-tag tag-fact">Genética</span>
+    </div>
+ 
+    <div class="card" data-delay="4">
+      <div class="card-num">05</div>
+      <div class="card-icon">🌙</div>
+      <p class="card-title">Brilha no escuro (UV)</p>
+      <p class="card-text">Em 2020, cientistas descobriram que a pelagem do ornitorrinco fluoresce em verde e azul quando exposta à luz ultravioleta. Por quê? Ainda é um mistério. Talvez para comunicação ou camuflagem noturna.</p>
+      <span class="card-tag tag-weird">Descoberta recente</span>
+    </div>
+ 
+    <div class="card" data-delay="5">
+      <div class="card-num">06</div>
+      <div class="card-icon">🦷</div>
+      <p class="card-title">Nasce com dentes, mas os perde</p>
+      <p class="card-text">Filhotes nascem com dentes que perdem logo após o nascimento. Os adultos trituram a comida com almofadas de queratina endurecida. São os únicos mamíferos com essa característica de "dentes temporários de bebê" que somem.</p>
+      <span class="card-tag tag-bio">Fisiologia</span>
+    </div>
+ 
+    <div class="card" data-delay="6">
+      <div class="card-num">07</div>
+      <div class="card-icon">🌡️</div>
+      <p class="card-title">Temperatura corporal baixíssima</p>
+      <p class="card-text">A temperatura corporal do ornitorrinco é de apenas 32°C, muito abaixo dos 37°C humanos. Isso é considerada uma característica ancestral, ligando-o evolutivamente a répteis e aos primeiros mamíferos da Terra.</p>
+      <span class="card-tag tag-fact">Fisiologia</span>
+    </div>
+ 
+    <div class="card" data-delay="7">
+      <div class="card-num">08</div>
+      <div class="card-icon">🇧🇷</div>
+      <p class="card-title">Não existe ornitorrinco solto no Brasil</p>
+      <p class="card-text">O ornitorrinco é endêmico da Austrália — só existe na natureza no leste australiano e na Tasmânia. Aqui no Brasil, você nunca vai encontrar um na selva, rio ou cerrado. O clima tropical úmido e a fauna nativa completamente diferente tornam o Brasil um habitat impossível para eles. Para ver um de perto, o jeito é pegar um voo para a Oceania.</p>
+      <span class="card-tag tag-fact">Distribuição</span>
+    </div>
+ 
+  </div>
+</section>
+ 
+<div class="divider"></div>
+ 
+<!-- TIMELINE -->
+<section class="section">
+  <div class="section-label">História</div>
+  <h2 class="section-title">Como o mundo <em style="color:var(--accent2)">descobriu</em> ele</h2>
+ 
+  <div class="timeline">
+    <div class="timeline-item">
+      <div class="timeline-year">1799</div>
+      <p class="timeline-title">Europa recebe o primeiro espécime</p>
+      <p class="timeline-text">O naturalista George Shaw recebe uma pele seca do ornitorrinco na Inglaterra e acredita ser uma fraude — alguém teria costurado um bico de pato em uma pele de animal.</p>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-year">1824</div>
+      <p class="timeline-title">Classificação como mamífero</p>
+      <p class="timeline-text">Após décadas de debate, é classificado como mamífero da ordem Monotremata, junto com as equidnas — os únicos mamíferos ovíparos do planeta.</p>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-year">1884</div>
+      <p class="timeline-title">Confirmação de que bota ovos</p>
+      <p class="timeline-text">William Caldwell confirma que o ornitorrinco realmente bota ovos, mandando um telegrama famoso para a Associação Britânica para o Avanço da Ciência.</p>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-year">2008</div>
+      <p class="timeline-title">Genoma completamente sequenciado</p>
+      <p class="timeline-text">Cientistas sequenciam o DNA completo do ornitorrinco e ficam chocados: ele tem genes de réptil, mamífero e ave — ao mesmo tempo. Uma mistura genética sem precedentes.</p>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-year">2020</div>
+      <p class="timeline-title">Descoberta da fluorescência</p>
+      <p class="timeline-text">Pesquisadores descobrem que a pelagem fluoresce em luz UV. A descoberta acidental foi feita enquanto estudavam fluorescência em gambás.</p>
+    </div>
+  </div>
+</section>
+ 
+<!-- QUIZ -->
+<section class="quiz-section" id="quiz">
+  <div class="section-label">Testar conhecimento</div>
+  <h2 class="section-title" style="margin-bottom:1.5rem">Quiz <em style="color:var(--accent2)">rápido</em></h2>
+ 
+  <div class="quiz-card">
+    <p class="quiz-question" id="q-text"></p>
+    <div class="quiz-options" id="q-options"></div>
+    <div class="quiz-feedback" id="q-feedback"></div>
+    <div class="quiz-nav">
+      <span class="quiz-progress" id="q-progress"></span>
+      <button class="quiz-next" id="q-next" onclick="nextQuestion()">Próxima →</button>
+    </div>
+  </div>
+</section>
+ 
+<!-- FOOTER -->
+<footer>
+  <div class="logo">Ornitorrinco 🦆</div>
+  <p>Site criado para curiosos como você. Fontes: National Geographic, Nature, IUCN Red List e publicações científicas revisadas.</p>
+  <p style="margin-top:0.5rem">© 2024 — Apenas conteúdo educativo</p>
+</footer>
+ 
+<script>
+// Cursor
+const cursor = document.getElementById('cursor');
+document.addEventListener('mousemove', e => {
+  cursor.style.left = (e.clientX - 6) + 'px';
+  cursor.style.top  = (e.clientY - 6) + 'px';
+});
+ 
+// Scroll animations
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const delay = parseInt(entry.target.dataset.delay || 0);
+      setTimeout(() => entry.target.classList.add('visible'), delay * 100);
+      observer.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.1 });
+ 
+document.querySelectorAll('.card, .timeline-item').forEach(el => observer.observe(el));
+ 
+// Smooth scroll
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.addEventListener('click', e => {
+    e.preventDefault();
+    const target = document.querySelector(a.getAttribute('href'));
+    if (target) target.scrollIntoView({ behavior: 'smooth' });
+  });
+});
+ 
+// Quiz
+const questions = [
+  {
+    q: "Quantos receptores elétricos o bico do ornitorrinco tem?",
+    opts: ["Cerca de 500", "Cerca de 5.000", "Cerca de 40.000", "Nenhum"],
+    correct: 2,
+    feedback: "O bico tem cerca de 40.000 receptores elétricos e mecânicos, permitindo detectar campos elétricos de presas embaixo d'água com olhos e ouvidos fechados."
+  },
+  {
+    q: "O que aconteceu quando o primeiro espécime chegou à Europa em 1799?",
+    opts: ["Foi celebrado imediatamente", "Cientistas acharam que era fraude", "Foi confundido com castor", "Ninguém ligou"],
+    correct: 1,
+    feedback: "O naturalista George Shaw acreditou que alguém havia costurado um bico de pato em uma pele de animal. A ideia de um mamífero com bico parecia impossível."
+  },
+  {
+    q: "Qual é a temperatura corporal do ornitorrinco?",
+    opts: ["37°C como humanos", "40°C (febre constante)", "32°C", "28°C"],
+    correct: 2,
+    feedback: "A temperatura de 32°C é muito baixa para um mamífero e é considerada uma característica primitiva, ligando o ornitorrinco evolutivamente aos primeiros mamíferos."
+  },
+  {
+    q: "Em que ano o genoma completo do ornitorrinco foi sequenciado?",
+    opts: ["1999", "2003", "2008", "2016"],
+    correct: 2,
+    feedback: "Em 2008, pesquisadores ficaram surpresos ao encontrar uma mistura de genes de réptil, mamífero e ave — uma combinação genética sem precedentes na ciência."
+  },
+  {
+    q: "Como as fêmeas amamentam os filhotes?",
+    opts: ["Têm mamilos normais", "O leite sai pela pele como suor", "Regurgitam o leite", "Não amamentam"],
+    correct: 1,
+    feedback: "Sem mamilos, o leite é secretado por poros da pele do abdômen. Os filhotes lambem o leite diretamente da pele da mãe — uma característica mamífera primitiva fascinante."
+  }
+];
+ 
+let current = 0;
+let answered = false;
+ 
+function loadQuestion() {
+  const q = questions[current];
+  document.getElementById('q-text').textContent = q.q;
+  document.getElementById('q-progress').textContent = (current + 1) + ' / ' + questions.length;
+  document.getElementById('q-feedback').classList.remove('show');
+  document.getElementById('q-next').classList.remove('show');
+  answered = false;
+ 
+  const opts = document.getElementById('q-options');
+  opts.innerHTML = '';
+  ['A','B','C','D'].forEach((letter, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'quiz-option';
+    btn.innerHTML = '<span class="quiz-letter">' + letter + '</span>' + q.opts[i];
+    btn.onclick = () => answer(i);
+    opts.appendChild(btn);
+  });
+}
+ 
+function answer(idx) {
+  if (answered) return;
+  answered = true;
+  const q = questions[current];
+  document.querySelectorAll('.quiz-option').forEach((b, i) => {
+    if (i === q.correct) b.classList.add('correct');
+    else if (i === idx) b.classList.add('wrong');
+    b.disabled = true;
+  });
+  const fb = document.getElementById('q-feedback');
+  fb.textContent = q.feedback;
+  fb.classList.add('show');
+  const nextBtn = document.getElementById('q-next');
+  if (current < questions.length - 1) {
+    nextBtn.textContent = 'Próxima →';
+    nextBtn.classList.add('show');
+  } else {
+    nextBtn.textContent = '🎉 Reiniciar';
+    nextBtn.classList.add('show');
+  }
+}
+ 
+function nextQuestion() {
+  if (current < questions.length - 1) {
+    current++;
+  } else {
+    current = 0;
+  }
+  loadQuestion();
+}
+ 
+loadQuestion();
+</script>
+</body>
+</html>
